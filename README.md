@@ -5,7 +5,9 @@ This is a replication of "Work from Home before and after the COVID-19 Outbreak"
 
 This report replicates and analyses data from the US during February and May 2020 regarding employment and commuting behavior. In this reproduction, I display similarities to the original paper through employment percent change over February and May, average days worked per week, and fraction of days commuting. I delve deeper into the commuting behavior of individuals and find that commuting to work decreased while working from home increased greatly from February to May 2020. However, this paper challenges the results regarding the February to May transition rates (comparison metween commuting behavior in February vs May per individual) and offers discusion as to why.
 
-
+## Data Availability
+The data used for this report can be found in the original papers' replication package. https://doi.org/10.3886/E181641V1 or https://www.aeaweb.org/articles?id=10.1257/mac.20210061.
+The data can be downloaded through these websites however it is currently behind a sign-in page. In order to replicate the data, using the exact data sets in the original paper, I have downloaded the file rps_data_release_v3.dta to my local computer. The downloading and cleaningn takes place in `input/data` file.
 
 ## LLM Usage Statment
 LLMs WERE NOT USED AT ALL IN MAKING THIS REPORT.
