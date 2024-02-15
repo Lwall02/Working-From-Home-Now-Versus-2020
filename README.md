@@ -7,7 +7,7 @@ This report replicates and analyses data from the US during February and May 202
 
 ## Data Availability
 The data used for this report can be found in the original papers' replication package. https://doi.org/10.3886/E181641V1 or https://www.aeaweb.org/articles?id=10.1257/mac.20210061.
-The data can be downloaded through these websites however it is currently behind a sign-in page. In order to replicate the data, using the exact data sets in the original paper, I have downloaded the file rps_data_release_v3.dta to my local computer. The downloading and cleaningn takes place in `input/data` file.
+The data can be downloaded through these websites however it is currently behind a sign-in page. In order to replicate the data, using the exact data sets in the original paper, I have downloaded the file rps_data_release_v3.dta to my local computer. The downloading and cleaning takes place in `input/data` file.
 
 ## LLM Usage Statment
 LLMs WERE NOT USED AT ALL IN MAKING THIS REPORT.
