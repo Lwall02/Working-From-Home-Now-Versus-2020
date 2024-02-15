@@ -9,7 +9,7 @@ abstract: "This report replicates and analyses data from the US during February 
 format: pdf
 toc: true
 number-sections: true
-bibliography: citations.bib
+bibliography: references.bib
 ---
 
 ```{r}
@@ -44,19 +44,19 @@ During the pandemic, it was during the transition from February to May that many
 # Data
 The data in this paper is downloaded from the replication package made available by the authors of the original paper, 'Work from Home before and after the COVID-19 Outbreak.' On the cover page is a DOI link which leads to the necessary files to download.
 
-The entirety of this project was done using  the open source programming language R [@citeR]. In order to clean and analyse this data, discussed below I used the packages tidyverse [@tidyverse], and knitr [@knitr].
+The entirety of this project was done using  the open source programming language R [@citeR]. In order to clean and analyse this data, discussed below I used the packages: haven [@haven], tidyverse [@tidyverse], and knitr [@knitr].
 
 ## The Data Sets
-The authors have made available the raw data used in their paper, which includes 11 data sets regarding many labor statistics during the COVID-19 pandemic period. This paper only focuses on one, the RPS data set. The RPS is the Real-Time Population Survey and serves as labor market survey meant to be similar to that of the Current Population Survey (CPS), a long running U.S. Bureau of Labor Statistics survey [CITIATIONT]. The RPS began in March of 2020 as a weekly online questionaire and continues today offered by the Federal Reserve Bank [CITATION].  
+The authors have made available the raw data used in their paper, which includes 11 data sets regarding many labor statistics during the COVID-19 pandemic period. This paper only focuses on one, the RPS data set. The RPS is the Real-Time Population Survey and serves as labor market survey meant to be similar to that of the Current Population Survey (CPS), a long running U.S. Bureau of Labor Statistics survey [@cps_rps]. The RPS began in March of 2020 as a weekly online questionnaire and continues today offered by the Federal Reserve Bank [@federal_reserve].  
 
 It asks questions regarding general household information, income,and employment, and where it differs from the CPS is that it asks questions regarding time spent working and information on an individuals weekly commuting schedule for their employment. More specifically, it asks someone's employment status (as employed or unemployed), how many days and hours someone worked per week, and how many days they commuted to their job during February and May separately. It is important to note that these specific questions - how many days worked per week and how many days commutting to work - were not asked every week because this survey was so new in early 2020, and so we consider the month of May were these questions were asked. 
 
 Furthermore, during May the RPS also asked questions regarding an individuals employment during February. For this reason the original paper and this paper focus only on the responses during May 2020 from around 5,000 individuals. 
 
 ## Cleaning the Data
-Fortunately, the RPS is documented in an already clean and well documented manner since it meant to provide labor statistics at a higher frequency than the CPS. The only cleaning required was that of selecting the variables to use for analysis out of the 61 offered. I selected information on an individual's employment status, days worked per week, and days commutted to work per week, for both February and May.
+Fortunately, the RPS is documented in an already clean and well documented manner since it meant to provide labor statistics at a higher frequency than the CPS. The only cleaning required was that of selecting the variables to use for analysis out of the 61 offered. I selected information on an individual's employment status, days worked per week, and days commuted to work per week, for both February and May.
 
-Next, I had to filter out those that had no information in any of these areas. The end result is a data set with exactly 4,941 individuals with recorded employment status and relevant information on their weekly working behavior during the months of May and February. From this, I could then find the fraction of the days commutted to work per week. A small sample of this information is available in @tbl-samplerpsdata.  
+Next, I had to filter out those that had no information in any of these areas. The end result is a data set with exactly 4,941 individuals with recorded employment status and relevant information on their weekly working behavior during the months of May and February. From this, I could then find the fraction of the days commuted to work per week. A small sample of this information is available in @tbl-samplerpsdata.  
 
 ```{r}
 #| label: tbl-samplerpsdata
@@ -152,7 +152,7 @@ df_rep1 |>
 
 ```
 
-Secondly, I attempted to recreate Table 2 pane a from the original paper and again did so successfully. @tbl-reptabletwo delves deeper into the commutting behaviors of the individual. It shows the percentage of those who commuted everyday, someday, or no days in Month and February. In this table we are ignoring those that are unemployed as they do not commute to a job. 
+Secondly, I attempted to recreate Table 2 pane a from the original paper and again did so successfully. @tbl-reptabletwo delves deeper into the commuting behaviors of the individual. It shows the percentage of those who commuted everyday, someday, or no days in Month and February. In this table we are ignoring those that are unemployed as they do not commute to a job. 
 
 ```{r}
 #| label: tbl-reptabletwo
@@ -369,7 +369,7 @@ In conclusion, the original paper took a much more in-depth approach to the anal
 The summary of the findings, however, is similar overall. We both found that employment decreased, a great deal more people began working from home in May 2020, and the amount of work required of the employees did not waver. The effect of COVID-19 on the work force could perhaps someday be seen as a pivotal moment in time, making employers rethink the effectiveness of an office as opposed to one's home. There is a great deal more to be learned from the pandemic's effect on the work force and this sample of only nearly 5,000 individuals shows there were real effects. Lastly, this work could be used to examine our potential effectiveness during future pandemic-like events.  
 
 
-
+{{< pagebreak >}}
 # References
 
 
