@@ -5,9 +5,59 @@ author: Liam Wall
 thanks: "Code and data are available at: https://github.com/Lwall02/What-Are-We-Using-Libraries-For. This is a reproduction of 'Work from Home before and after the COVID-19 Outbreak' DOI:https://doi.org/10.1257/mac.20210061"
 date: today
 date-format: long
-abstract: ""
+abstract: "This report replicates and analyses data from the US during February and May 2020 regarding employment and commuting behavior. In this reproduction I display similarities to the original paper through employment percent change over February and May, average days worked per week, and fraction of days commuting. I delve deeper into the commuting behavior of individuals and find that commuting to work decreased while working from home increased greatly. However this paper challenges the results regarding February - May transition rates and offers discusiion as to why. "
 format: pdf
 toc: true
 number-sections: true
 bibliography: references.bib
 ---
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(knitr)
+
+rps_data_may <- rps_data_release_v3 |>
+  filter(month == 5, year == 2020) |>
+  select(pid, year, month, week, wgt_research, emp_simple_refweek, emp_detail_refweek, days_working_refweek,
+         days_commuting_refweek, days_working_feb2020, days_commuting_feb2020, emp_simple_feb2020)
+
+```
+
+# Introduction
+During the COVID-19 pandemic, we as a whole experienced 'lock downs.' If you are reading this you most likely experienced 'lock downs,' too, and it was during these that working from home started to gain.  popularity. What we way remembers less, however, is that those who could not work from home lost their jobs. This report serves as a small reproduction of 'Work from Home before and after the COVID-19 Outbreak,' written by Alexander Bick, Adam Blandin, and Karel Mertens [CITIATION HERE]. The original paper is an in depth analysis into home based work and employment loss specifically during February and May 2020.  The goal of this paper, the estimand, is to look at the effect of the pandemic on working behavior.
+
+The main findings of the original paper show the expected steep increase in unemployment as well as employment changes with more nuance. For example, those working from home prior to the pandemic had little advantages post-pandemic, despite having previous experience in such an environment. And that over 70& of those who worked from home did so effectively. The original paper is a well done analysis however this paper focuses on just a few of the aspects the original paper covers, namely unemployment, days worked per week, and days commutting to work per week. These three variables - unemployment, days worked per week, and days commuting to work per week - I will go into more detail in the Data section. 
+
+During the pandemic, it was during the transition from February to May that many people in North America experienced the need for 'lock downs.' This forced many to people to into very different work situations and these three variables serve as telling statistics as to the effect of this change and what these changes were. This is discussed more in the Results Section. The Discussion sections talks about the reasons for these employment changes and how the data backs this up, as well as comparisons to original papers and the limitations of my work.
+
+
+# Data
+The data in this paper is downloaded from the replication package made available by the authors of the original paper, 'Work from Home before and after the COVID-19 Outbreak.' On the cover page is a DOI link which leads to the necessary files to download.
+
+The entirety of this project was done using  the open source programming language R [@citeR]. In order to clean and analyse this data, discussed below I used the packages tidyverse [@tidyverse], and knitr [@knitr].
+
+## The Data Sets
+The replication package has made available the raw data used which includes 11 datasets however this paper only focuses on one, the RPS data set. The RPS is the Real-Time Population Survey and 
+
+
+
+# Results
+
+# Discussion
+
+# Conclusion
+
+# References
+
+
+
+
+
+
+
+
+

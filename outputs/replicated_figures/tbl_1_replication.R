@@ -64,7 +64,7 @@ df_rep1 <- df_rep1 |>
 
 
 rownames(df_rep1) <- c("Employment Rate (%)", 
-                       "Avg. Daysorked Per Week", 
+                       "Avg. Days Worked Per Week", 
                        "Fractions of Workdays Commuting (%)",
                        "Log Points Change in Weekly Commuting Trips:")
 
