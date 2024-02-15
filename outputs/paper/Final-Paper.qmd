@@ -9,7 +9,7 @@ abstract: "This report replicates and analyses data from the US during February 
 format: pdf
 toc: true
 number-sections: true
-bibliography: references.bib
+bibliography: citations.bib
 ---
 
 ```{r}
@@ -17,18 +17,24 @@ bibliography: references.bib
 #| warning: false
 #| message: false
 
+# install.packages("tidyverse")
+# install.packages("knitr")
+# install.packages("haven")
+
 library(tidyverse)
 library(knitr)
+library(haven)
+
+rps_data_release_v3 <- read_dta(file = "/Users/liamwall/Working-From-Home-Now-Versus-2020/inputs/data/rps_data_release_v3.dta")
 
 rps_data_may <- rps_data_release_v3 |>
   filter(month == 5, year == 2020) |>
-  select(pid, year, month, week, wgt_research, emp_simple_refweek, emp_detail_refweek, days_working_refweek,
-         days_commuting_refweek, days_working_feb2020, days_commuting_feb2020, emp_simple_feb2020)
+  select(pid, year, month, week, wgt_research, emp_simple_refweek, emp_detail_refweek, days_working_refweek, days_commuting_refweek, days_working_feb2020, days_commuting_feb2020, emp_simple_feb2020)
 
 ```
 
 # Introduction
-During the COVID-19 pandemic, we as a whole experienced 'lock downs.' If you are reading this you most likely experienced 'lock downs,' too, and it was during these that working from home started to gain.  popularity. What we way remembers less, however, is that those who could not work from home lost their jobs. This report serves as a small reproduction of 'Work from Home before and after the COVID-19 Outbreak,' written by Alexander Bick, Adam Blandin, and Karel Mertens [CITIATION HERE]. The original paper is an in depth analysis into home based work and employment loss specifically during February and May 2020.  The goal of this paper, the estimand, is to look at the effect of the pandemic on working behavior.
+During the COVID-19 pandemic, we as a whole experienced 'lock downs.' If you are reading this you most likely experienced 'lock downs,' too, and it was during these that working from home started to gain.  popularity. What we way remembers less, however, is that those who could not work from home lost their jobs. This report serves as a small reproduction of 'Work from Home before and after the COVID-19 Outbreak,' written by Alexander Bick, Adam Blandin, and Karel Mertens [@paper]. The original paper is an in depth analysis into home based work and employment loss specifically during February and May 2020.  The goal of this paper, the estimand, is to look at the effect of the pandemic on working behavior.
 
 The main findings of the original paper show the expected steep increase in unemployment as well as employment changes with more nuance. For example, those working from home prior to the pandemic had little advantages post-pandemic, despite having previous experience in such an environment. And that over 70& of those who worked from home did so effectively. The original paper is a well done analysis however this paper focuses on just a few of the aspects the original paper covers, namely unemployment, days worked per week, and days commutting to work per week. These three variables - unemployment, days worked per week, and days commuting to work per week - I will go into more detail in the Data section. 
 
@@ -41,15 +47,328 @@ The data in this paper is downloaded from the replication package made available
 The entirety of this project was done using  the open source programming language R [@citeR]. In order to clean and analyse this data, discussed below I used the packages tidyverse [@tidyverse], and knitr [@knitr].
 
 ## The Data Sets
-The replication package has made available the raw data used which includes 11 datasets however this paper only focuses on one, the RPS data set. The RPS is the Real-Time Population Survey and 
+The authors have made available the raw data used in their paper, which includes 11 data sets regarding many labor statistics during the COVID-19 pandemic period. This paper only focuses on one, the RPS data set. The RPS is the Real-Time Population Survey and serves as labor market survey meant to be similar to that of the Current Population Survey (CPS), a long running U.S. Bureau of Labor Statistics survey [CITIATIONT]. The RPS began in March of 2020 as a weekly online questionaire and continues today offered by the Federal Reserve Bank [CITATION].  
 
+It asks questions regarding general household information, income,and employment, and where it differs from the CPS is that it asks questions regarding time spent working and information on an individuals weekly commuting schedule for their employment. More specifically, it asks someone's employment status (as employed or unemployed), how many days and hours someone worked per week, and how many days they commuted to their job during February and May separately. It is important to note that these specific questions - how many days worked per week and how many days commutting to work - were not asked every week because this survey was so new in early 2020, and so we consider the month of May were these questions were asked. 
 
+Furthermore, during May the RPS also asked questions regarding an individuals employment during February. For this reason the original paper and this paper focus only on the responses during May 2020 from around 5,000 individuals. 
+
+## Cleaning the Data
+Fortunately, the RPS is documented in an already clean and well documented manner since it meant to provide labor statistics at a higher frequency than the CPS. The only cleaning required was that of selecting the variables to use for analysis out of the 61 offered. I selected information on an individual's employment status, days worked per week, and days commutted to work per week, for both February and May.
+
+Next, I had to filter out those that had no information in any of these areas. The end result is a data set with exactly 4,941 individuals with recorded employment status and relevant information on their weekly working behavior during the months of May and February. From this, I could then find the fraction of the days commutted to work per week. A small sample of this information is available in @tbl-samplerpsdata.  
+
+```{r}
+#| label: tbl-samplerpsdata
+#| tbl-cap: "This shows 10 rows of the final cleaned RPS data. It contains information on every individuals weekly employment during February and May 2020. Note for those who do not have employment there is a -2 as a placeholder for the relevant variables."
+#| tbl-cap-location: bottom
+#| echo: false
+#| message: false
+#| warning: false
+
+rps_data_may |>
+  arrange(-wgt_research) |>
+  select(pid, year, month, week, emp_simple_refweek, days_working_refweek, days_commuting_refweek,
+         emp_simple_feb2020, days_working_feb2020, days_commuting_feb2020) |>
+  slice(1:10) |>
+  kable(col.names = c("Person", "Year", "Month", "Week", "Employment Status May", "Days Worked May",
+                      "Days Commutted May", "Employed Status Feb", "Days Worked Feb",
+                      "Days Commutted Feb" ),
+        booktabs = TRUE,
+        linesep = "")
+```
 
 # Results
+The results of the analysis are in three parts. First, I attempted to replicate Table 1 of the original paper and did so successfully. @tbl-reptableone is the replicated table and shows the relationship between the RPS data as a whole in February versus March. It features a large decrease in the employment rate among the surveyed by 30.4 log points. And it shows despite the average number of workdays commutting to work decreasing by 35.7 log points, the days spent working remained around the same as in February. 
+
+```{r}
+#| label: tbl-reptableone
+#| tbl-cap: "This displays the difference in employment for the average individual in May compared to February 2020. This is also a replication of Tbale 1 from  'Work from Home before and after the COVID-19 Outbreak.' "
+#| tbl-cap-location: bottom
+#| echo: false
+#| message: false
+#| warning: false
+
+count_days_worked_may <- rps_data_may |>
+  count(emp_simple_refweek) 
+
+count_days_worked_feb <- rps_data_may |>
+  count(emp_simple_feb2020)
+
+count_emp_detailed_may <- rps_data_may |>
+  count(emp_detail_refweek)
+
+  
+employment_rate_feb <- count_days_worked_feb$n[3] / 4941
+employment_rate_may <- count_days_worked_may$n[3] / 4941
+  
+
+avg_days_worked_may <- mean(rps_data_may$days_working_refweek[rps_data_may$days_working_refweek > 0])
+avg_days_worked_feb <- mean(rps_data_may$days_working_feb2020[rps_data_may$days_working_feb2020 > 0])
+
+
+# Add a column for fraction of workdays commuting
+rps_data_with_fractions <- rps_data_may |> 
+  filter(days_working_refweek >= 0, days_working_feb2020 >= 0) |>
+  mutate(
+    frac_days_comm_may = days_commuting_refweek / days_working_refweek,
+    frac_days_comm_feb = days_commuting_feb2020 / days_working_feb2020
+  )
+
+avg_frac_may <- mean(rps_data_with_fractions$frac_days_comm_may)  
+avg_frac_feb <- mean(rps_data_with_fractions$frac_days_comm_feb)  
+
+emp_rate_log_points <- round(100 * log(employment_rate_may / employment_rate_feb), 1)
+avg_days_log_points <- round(100 * log(avg_days_worked_may / avg_days_worked_feb), 1)
+frac_workday_comm <- round(100 * log(avg_frac_may / avg_frac_feb), 1)
+
+total_log_points <- 100 * log(employment_rate_may / employment_rate_feb) + 
+  100 * log(avg_days_worked_may / avg_days_worked_feb) +
+  100 * log(avg_frac_may / avg_frac_feb)
+
+
+
+# Now to display the table
+df_rep1 <- data.frame(
+  "February" = round(c(employment_rate_feb * 100, round(avg_days_worked_feb, 1), avg_frac_feb * 100), 1),
+  "May" = round(c(employment_rate_may * 100, round(avg_days_worked_may, 1), avg_frac_may * 100), 1),
+  "Change_in_Log_Points" = c(emp_rate_log_points, avg_days_log_points, frac_workday_comm
+  )
+) 
+
+
+df_rep1 <- df_rep1 |>
+  add_row(February = as.integer(""), May = as.integer(""), 
+          Change_in_Log_Points = round(total_log_points, 1))
+
+
+rownames(df_rep1) <- c("Employment Rate (%)", 
+                       "Avg. Days Worked Per Week", 
+                       "Fractions of Workdays Commuting (%)",
+                       "Log Points Change in Weekly Commuting Trips:")
+
+df_rep1 |>
+  kable()
+
+```
+
+Secondly, I attempted to recreate Table 2 pane a from the original paper and again did so successfully. @tbl-reptabletwo delves deeper into the commutting behaviors of the individual. It shows the percentage of those who commuted everyday, someday, or no days in Month and February. In this table we are ignoring those that are unemployed as they do not commute to a job. 
+
+```{r}
+#| label: tbl-reptabletwo
+#| tbl-cap: "This table shows the percent of individuals in each commutting scenario from the RPS. It shows that the average person worked the same amount per week, however worked from home much more."
+#| tbl-cap-location: bottom
+#| echo: false
+#| message: false
+#| warning: false
+
+rps_data_with_fractions <- rps_data_may |> 
+  filter(days_working_refweek >= 0, days_working_feb2020 >= 0) |>
+  mutate(
+    frac_days_comm_may = days_commuting_refweek / days_working_refweek,
+    frac_days_comm_feb = days_commuting_feb2020 / days_working_feb2020
+  )
+
+count_frac_days_feb <- rps_data_with_fractions |>
+  count(frac_days_comm_feb) 
+
+count_frac_days_may <- rps_data_with_fractions |>
+  count(frac_days_comm_may)
+
+comm_work_everyday_feb <- count_frac_days_feb$n[19] / sum(count_frac_days_feb$n)
+comm_work_everyday_may <- count_frac_days_may$n[19] / sum(count_frac_days_may$n)
+
+comm_work_some_feb <- sum(count_frac_days_feb$n[2:18]) / sum(count_frac_days_feb$n)
+comm_work_some_may <- sum(count_frac_days_may$n[2:18]) / sum(count_frac_days_may$n)
+
+wfh_feb <- sum(count_frac_days_feb$n[1]) / sum(count_frac_days_feb$n)
+wfh_may <- sum(count_frac_days_may$n[1]) / sum(count_frac_days_may$n)
+
+
+#Display the Table
+df_rep2 <- data.frame(
+  "February" = round(c(comm_work_everyday_feb * 100, comm_work_some_feb * 100, wfh_feb * 100), 1),
+  "May" = round(c(comm_work_everyday_may * 100, comm_work_some_may * 100, wfh_may * 100), 1)
+  )
+
+rownames(df_rep2) <- c("Commuting to Work Every Day", 
+                       "Commuting on Some Days", 
+                       "Working from Home Every Day"
+                       )
+
+df_rep2 |>
+  kable()
+```
+Lastly, I attempted to replicate the originals paper's Table 2 pane b. This proved more challenging and serves as a point of discussion later. The findings are not completely similar to that of the paper. @tbl-reptablethree shows the change in an individual's commuting behavior between February and March. The rows refer to the individuals work schedule in May, the columns refer to their schedule in February. In this table we condiser all individuals who were employeed in February, regardless of their employment status in May. 
+
+```{r}
+#| label: tbl-reptablethree
+#| tbl-cap: "This table shows the relationship between an individuals change in commutting habits from February to May."
+#| tbl-cap-location: bottom
+#| echo: false
+#| message: false
+#| warning: false
+
+rps_data_with_fractions <- rps_data_may |>
+  filter(days_commuting_feb2020 >= 0.0, emp_simple_refweek >= 0.0) |>
+  mutate(
+    frac_days_comm_may = days_commuting_refweek / days_working_refweek,
+    frac_days_comm_feb = days_commuting_feb2020 / days_working_feb2020
+  )
+
+count_employment_may <- rps_data_with_fractions |>
+  count(emp_simple_refweek)
+
+count_employment_feb <- rps_data_with_fractions |>
+  count(emp_simple_feb2020)
+
+
+#Everyday May EveryDay Feb
+people_commute_everyday_feb_may <- rps_data_with_fractions |>
+  filter(frac_days_comm_feb == 1.0, frac_days_comm_may == 1.0)
+
+comm_everyday_feb_and_may <- 
+  nrow(people_commute_everyday_feb_may) / nrow(rps_data_with_fractions)
+
+one_1 <- comm_everyday_feb_and_may * 100
+
+#Everyday May Someday Feb
+people_comm_everyday_may_some_feb <- rps_data_with_fractions |>
+  filter(frac_days_comm_feb > 0.0, frac_days_comm_feb < 1.0, frac_days_comm_may == 1.0)
+
+comm_everyday_may_some_feb <- 
+  nrow(people_comm_everyday_may_some_feb) / nrow(rps_data_with_fractions)
+
+one_2 <- comm_everyday_may_some_feb * 100
+
+
+#Everyday May WFH Feb
+people_comm_everyday_may_wfh_feb <- rps_data_with_fractions |>
+  filter(frac_days_comm_feb == 0.0, frac_days_comm_may == 1.0)
+
+comm_everyday_may_wfh_feb <- 
+  nrow(people_comm_everyday_may_wfh_feb) / nrow(rps_data_with_fractions)
+
+one_3 <- comm_everyday_may_wfh_feb * 100
+
+
+#Someday May Everyday Feb
+people_comm_someday_may_everyday_feb <- rps_data_with_fractions |>
+  filter(frac_days_comm_feb == 1.0, frac_days_comm_may > 0.0, frac_days_comm_may < 1.0)
+
+comm_someday_may_everyday_feb <- 
+  nrow(people_comm_someday_may_everyday_feb) / nrow(rps_data_with_fractions)
+
+two_1 <- comm_someday_may_everyday_feb * 100
+
+#Someday May Someday Feb
+people_comm_someday_may_someday_feb <- rps_data_with_fractions |>
+  filter(frac_days_comm_feb > 0.0, frac_days_comm_feb < 1.0, frac_days_comm_may > 0.0, frac_days_comm_may < 1.0)
+
+comm_someday_may_someday_feb <- 
+  nrow(people_comm_someday_may_someday_feb) / nrow(rps_data_with_fractions)
+
+two_2 <- comm_someday_may_someday_feb * 100
+
+#Someday May WFH Feb
+people_comm_someday_may_wfh_feb <- rps_data_with_fractions |>
+  filter(frac_days_comm_feb == 0.0, frac_days_comm_may > 0.0, frac_days_comm_may < 1.0)
+
+comm_someday_may_wfh_feb <- 
+  nrow(people_comm_someday_may_wfh_feb) / nrow(rps_data_with_fractions)
+
+two_3 <- comm_someday_may_wfh_feb * 100
+
+#WFH May Everyday Feb
+people_comm_wfh_may_everyday_feb <- rps_data_with_fractions |>
+  filter(frac_days_comm_feb == 1.0, frac_days_comm_may == 0.0)
+
+comm_wfh_may_everyday_feb <- 
+  nrow(people_comm_wfh_may_everyday_feb) / nrow(rps_data_with_fractions)
+
+three_1 <- comm_wfh_may_everyday_feb * 100
+
+#WFH May Someday Feb
+people_comm_wfh_may_someday_feb <- rps_data_with_fractions |>
+  filter(frac_days_comm_feb > 0.0, frac_days_comm_feb < 1.0, frac_days_comm_may == 0.0)
+
+comm_wfh_may_someday_feb <- 
+  nrow(people_comm_wfh_may_someday_feb) / nrow(rps_data_with_fractions)
+
+three_2 <- comm_wfh_may_someday_feb * 100
+
+#WFH May WFH Feb
+people_comm_wfh_may_whf_feb <- rps_data_with_fractions |>
+  filter(frac_days_comm_feb == 0.0, frac_days_comm_may == 0.0)
+
+comm_wfh_may_whf_feb <- 
+  nrow(people_comm_wfh_may_whf_feb) / nrow(rps_data_with_fractions)
+
+three_3 <- comm_wfh_may_whf_feb * 100
+
+
+people_emp_to_unemp <- count_employment_may$n[1]
+
+#Not Employed May Everyday Feb
+people_unemp_may_everyday_feb <- rps_data_with_fractions |>
+  filter(emp_simple_refweek == 0, frac_days_comm_feb == 1.0)
+
+unemp_may_everyday_feb <- 
+  nrow(people_unemp_may_everyday_feb) / nrow(rps_data_with_fractions)
+
+four_1 <- unemp_may_everyday_feb * 100
+
+#Not Employed May Someday Feb
+people_unemp_may_someday_feb <- rps_data_with_fractions |>
+  filter(emp_simple_refweek == 0, frac_days_comm_feb > 0.0, frac_days_comm_feb < 1.0)
+
+unemp_may_someday_feb <- 
+  nrow(people_unemp_may_someday_feb) / nrow(rps_data_with_fractions)
+
+four_2 <- unemp_may_someday_feb * 100
+
+#Not Employed May WFH Feb
+people_unemp_may_wfh_feb <- rps_data_with_fractions |>
+  filter(emp_simple_refweek == 0, frac_days_comm_feb == 0.0)
+
+unemp_may_wfh_feb <- 
+  nrow(people_unemp_may_wfh_feb) / nrow(rps_data_with_fractions)
+
+four_3 <- unemp_may_wfh_feb * 100
+
+df_rep3 <- data.frame(
+  "Commuting Every Day" = round(c(one_1, two_1, three_1, four_1), 1),
+  "Commuting Some Days" = round(c(one_2, two_2, three_2, four_2), 1),
+  "Working from Home" = round(c(one_3, two_3, three_3, four_3), 1)
+)
+
+rownames(df_rep3) <- c("Commuting to Work Every Day", 
+                       "Commuting on Some Days", 
+                       "Working from Home Every Day",
+                       "No Longer Employed"
+)
+
+df_rep3 |>
+  kable()
+```
+
 
 # Discussion
+The discussion of this analysis will focus mainly on @tbl-reptablethree. First, @tbl-reptableone simply reassures the reader that the data collected does reflect the largely known situation that people do work from home more and during COVID-19 the unemployment rate did increase. The reasons for this are many and differ greatly depending on employment type and location. In particular, those who lost their job during the on set of the lock downs would have been employed in jobs where they require person-to-person contact or communication, whether that be sales, waiting tables, or customer service. Therefore, it is not too far a stretch to connect the COVID-19 measures with unemployment at this time. Further in @tbl-reptableone we can see that the fraction of weekdays commuting to work decreased the most and average number of days working per week remained about the same. As for these two results, we can find explanation in that companies were encouraging and promoting their employees to work from home. It was a safeTy hazard and, as the original study has shown, productivity does not necessarily decrease due to working from home. In fact, in some case productivity increases. [CITIATION] In this way, with access to working from home, employees were able to work a very similar amount to pre-pandemic measures in February.
+
+Secondly, @tbl-reptabletwo focuses on the relationship between commutting to work considering pre and post pandemic measures. In this table, as explained in the Results section, we only consider those individuals who were employed in both February and March. The results give evidence that COVID-19 gave considerable rise to working from home. In February only 8.8% of employees were working from home whereas in May 33.3% of employees worked from home. 
+
+Lastly, @tbl-reptablethree begins to look deep into the individuals commuting behaviors relative to the pre-pandemic and post-pandemic measures. The table offers insights into how most people changed working 'styles' from February to May. For example, it displays the percentage of those who were working every day in February and are now working strictly from home. Or perhaps the individual is no longer employed. In this data set we consider a larger set of the RPS individuals, including some that do not have employment in May. Unfortunately, @tbl-reptablethree is not completely similar to that of the original paper I am attemtping to replicate. Most notably, the final column, those that worked from home in February, should have seen inflated values as the other tables have shown working from home popularity, but @tbl-reptablethree does not show this. 
+
+Possible reasons for this disparity bring to light the potential shortcomings of the analysis of this paper. For one, I focus only on the RPS data provided by the replication package attached to the original paper. There are several other data sets which may offer information to offer support to the original paper's conclusion, but I do not consider them. Another, is that the RPS has denoted a weighting to each of the responses. In this way, the RPS may allow for every response to count for something, despite the individual possibly having no response for a variable at all. For example, if the individual does not record their employment type, it may be recorded as "-2" and RPS still uses this record in their calculation of employment rate, just that the weighting of their response will be much less to someone with a real response. In my analysis I did not consider the weighting of each individual, instead I took their responses at face value. So, if an individual was unemployed/employed I counted their response and if they did not respond I did not include their data in my analysis.
+
 
 # Conclusion
+In conclusion, the original paper took a much more in-depth approach to the analysis of the working and commutting behavior of the individuals in the RPS. Consideration of the weighting of an individual's response is the largest difference between the original paper and this replication. Perhaps it shows that because of the smaller size of the sample (4,941 surveyed) brings about the need for weighting as opposed to omitting certain data points. 
+
+The summary of the findings, however, is similar overall. We both found that employment decreased, a great deal more people began working from home in May 2020, and the amount of work required of the employees did not waver. The effect of COVID-19 on the work force could perhaps someday be seen as a pivotal moment in time, making employers rethink the effectiveness of an office as opposed to one's home. There is a great deal more to be learned from the pandemic's effect on the work force and this sample of only nearly 5,000 individuals shows there were real effects. Lastly, this work could be used to examine our potential effectiveness during future pandemic-like events.  
+
+
 
 # References
 
