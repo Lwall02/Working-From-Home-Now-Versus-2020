@@ -1,4 +1,4 @@
-# This is just the replication of the first graph - Table 1
+# This is the replication of the first graph - Table 1
 
 library(tidyverse)
 library(knitr)

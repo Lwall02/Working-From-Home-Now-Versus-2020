@@ -9,8 +9,7 @@ view(rps_data_release_v3)
 
 rps_data_may <- rps_data_release_v3 |>
   filter(month == 5, year == 2020) |>
-#  filter(emp_simple_refweek == 1) |>
-  select(pid, year, month, week, emp_simple_refweek, days_working_refweek, days_working_refweek,
+  select(pid, year, month, week, wgt_research, emp_simple_refweek, days_working_refweek, days_working_refweek,
          days_commuting_refweek, days_working_feb2020, days_commuting_feb2020, emp_simple_feb2020)
 
 
@@ -32,6 +31,7 @@ rps_data_may |>
 rps_data_may |>
   count(days_working_feb2020)
 
+
 avg_days_worked_may <- mean(rps_data_may$days_working_refweek[rps_data_may$days_working_refweek > 0])
 
 avg_days_worked_feb <- mean(rps_data_may$days_working_feb2020[rps_data_may$days_working_feb2020 > 0])
@@ -43,6 +43,8 @@ rps_data_with_fractions <- rps_data_may |>
     frac_days_comm_may = days_commuting_refweek / days_working_refweek,
     frac_days_comm_feb = days_commuting_feb2020 / days_working_feb2020
   )
+
+
 view(rps_data_with_fractions)
 
 avg_frac_may <- mean(rps_data_with_fractions$frac_days_comm_may)  
