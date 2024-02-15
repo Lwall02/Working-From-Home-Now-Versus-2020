@@ -1,3 +1,6 @@
+# I attempt to replicate three graphs from "Work from Home Before and After the COVID-19 Outbreak"
+# First I replicate Table 1 on page 5
+
 library(tidyverse)
 library(knitr)
 
@@ -25,6 +28,9 @@ employment_rate_feb <- count_days_worked_feb$n[3] / 4941
 
 rps_data_may |>
   count(days_working_refweek)
+
+rps_data_may |>
+  count(days_working_feb2020)
 
 avg_days_worked_may <- mean(rps_data_may$days_working_refweek[rps_data_may$days_working_refweek > 0])
 
@@ -82,3 +88,36 @@ rownames(df_rep1) <- c("Employment Rate (%)",
                        "Log Points Change in Weekly Commuting Trips:")
 
 df_rep1
+ # END OF REPLICATION OF GRAPH 1
+
+
+rps_data_release_v3 |>
+  filter(month == 5, year == 2020) |>
+  count(emp_detail_refweek)
+
+rps_data_with_fractions |>
+  count(frac_days_comm_feb) |>
+  mutate(sum = sum(n))
+
+rps_data_with_fractions |>
+  count(frac_days_comm_may) |>
+  mutate(sum = sum(n))
+
+rps_data_may |> 
+#  filter(days_working_refweek >= 0, days_working_feb2020 >= 0) |>
+  filter(emp_simple_feb2020 > 0) |>
+  mutate(
+    frac_days_comm_may = days_commuting_refweek / days_working_refweek,
+    frac_days_comm_feb = days_commuting_feb2020 / days_working_feb2020
+  ) |>
+  count(frac_days_comm_feb) |>
+  mutate(sum = sum(n))
+
+rps_data_may |> 
+  filter(emp_simple_refweek > 0) |>
+  mutate(
+    frac_days_comm_may = days_commuting_refweek / days_working_refweek,
+    frac_days_comm_feb = days_commuting_feb2020 / days_working_feb2020
+  ) |>
+  count(frac_days_comm_may) |>
+  mutate(sum = sum(n))
