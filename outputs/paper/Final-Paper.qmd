@@ -83,7 +83,7 @@ The results of the analysis are in three parts. First, I attempted to replicate 
 
 ```{r}
 #| label: tbl-reptableone
-#| tbl-cap: "This displays the difference in employment for the average individual in May compared to February 2020. This is also a replication of Tbale 1 from  'Work from Home before and after the COVID-19 Outbreak.' "
+#| tbl-cap: "This displays the difference in employment for the average individual in May compared to February 2020. This is also a replication of Table 1 from  'Work from Home before and after the COVID-19 Outbreak.' "
 #| tbl-cap-location: bottom
 #| echo: false
 #| message: false
